@@ -11,6 +11,8 @@ tags:
   - terraform provider
   - terraform provider funtions
   - terraform-provider-math
+{% assign terraform_plan = site.static_files | where: "image", true | where: "extname", "png" | where: "basename", "2024-04-17-terraform-provider-functions-terraform-plan" %}
+{% assign terraform_apply = site.static_files | where: "image", true | where: "extname", "png" | where: "basename", "2024-04-17-terraform-provider-functions-terraform-apply" %}
 ---
 
 ## Terraform Provider Functions
@@ -160,7 +162,7 @@ terraform plan
 
 And the results:
 
-![terraform plan](/assets/img/2024-04-17-terraform-provider-functions-terraform-plan.png)
+![terraform plan]({{ terraform_plan.path}})
 
 ### Resources
 
@@ -305,7 +307,7 @@ terraform init
 terraform apply -auto-approve
 ```
 
-![terraform apply](/assets/img/2024-04-17-terraform-provider-functions-terraform-apply.png)
+![terraform apply]({{ terraform_apply.path}})
 
 ### Conclusion
 
