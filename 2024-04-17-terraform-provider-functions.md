@@ -1,9 +1,19 @@
 ---
 layout: post
 title: Terraform Provider Functions
+permalink: /2024/04/17/terraform-provider-functions/
+date: 2024-04-17 17:22:00 -0500
+categories:
+  - DevOps
+  - Terraform
+  - Go
+tags:
+  - terraform provider
+  - terraform provider funtions
+  - terraform-provider-math
 ---
 
-# Terraform Provider Functions
+## Terraform Provider Functions
 
 Have you ever wished for a function to exist in Terraform but it simply wasn’t there? Fret no more! Terraform 1.8 was released last week and includes the general availability of [Provider Functions](https://www.hashicorp.com/blog/terraform-1-8-improves-extensibility-with-provider-defined-functions). This feature allows you to write your own functions in Go and use them in your Terraform configuration. This is a game changer for Terraform and I’m excited to see what the community comes up with.
 
@@ -17,7 +27,7 @@ My initial intent was just to write a function called “fib” that would gener
 
 I named my provider “math” to keep it generic and include additional functions within that space to use it like a library/package.
 
-## Functions
+### Functions
 
 Creating provider functions should follow the format of making a new file in “internal/provider” and naming it for the function (e.g. “fib_function.go”). I copied the example_function.go file and then proceded to modify it by searching for “ExampleFunction” and replacing with “FibFunction”.
 
@@ -25,14 +35,15 @@ A function is registered to the provider with a creation of a new function calle
 
 ```go
 func NewFibFunction() function.Function {
-	return &FibFunction{}
+  return &FibFunction{}
 }
 ```
+
 Then, the Metadata method needs to be called that returns the function metadata:
 
 ```go
 func (f *FibFunction) Metadata(ctx context.Context, req function.MetadataRequest, resp *function.MetadataResponse) {
-	resp.Name = "fib"
+  resp.Name = "fib"
 }
 ```
 
@@ -40,16 +51,16 @@ The Definition method is used to create your input and return types:
 
 ```go
 func (f *FibFunction) Definition(ctx context.Context, req function.DefinitionRequest, resp *function.DefinitionResponse) {
-	resp.Definition = function.Definition{
-		Summary:             "Fibonacci sequence",
-		MarkdownDescription: "Accepts a number and returns the result of the fibonacci sequence at that index.",
-		Parameters: []function.Parameter{
-			function.NumberParameter{
-				Name: "number",
-			},
-		},
-		Return: function.NumberReturn{},
-	}
+  resp.Definition = function.Definition{
+    Summary:             "Fibonacci sequence",
+    MarkdownDescription: "Accepts a number and returns the result of the fibonacci sequence at that index.",
+    Parameters: []function.Parameter{
+      function.NumberParameter{
+        Name: "number",
+      },
+    },
+    Return: function.NumberReturn{},
+  }
 }
 ```
 
@@ -59,20 +70,20 @@ To execute the function, you implement the Run method:
 
 ```go
 func (f *FibFunction) Run(ctx context.Context, req function.RunRequest, resp *function.RunResponse) {
-	var number *big.Float
-	var result *big.Float
+  var number *big.Float
+  var result *big.Float
 
-	// Read Terraform argument data into the variables
-	resp.Error = function.ConcatFuncErrors(resp.Error, req.Arguments.Get(ctx, &number))
+  // Read Terraform argument data into the variables
+  resp.Error = function.ConcatFuncErrors(resp.Error, req.Arguments.Get(ctx, &number))
 
-	fibInt, _ := number.Uint64()
-	result = big.NewFloat(0).SetUint64(fib.Fib(fibInt))
+  fibInt, _ := number.Uint64()
+  result = big.NewFloat(0).SetUint64(fib.Fib(fibInt))
 
-	resp.Error = function.ConcatFuncErrors(resp.Error, resp.Result.Set(ctx, result))
+  resp.Error = function.ConcatFuncErrors(resp.Error, resp.Result.Set(ctx, result))
 }
 ```
 
-he tricky part is that everything implements the data types from the go-cty package. So, Terraform “number” data type is implemented as a big.Float, from the “math/big” standard library package.
+The tricky part is that everything implements the data types from the go-cty package. So, Terraform “number” data type is implemented as a big.Float, from the “math/big” standard library package.
 
 In order to simplify everything, I put my actual implementation of the fibonacci sequence in a separate package called “fib” and imported it into the function file (the package is in “internal/fib”). This allowed me to test the function in isolation from the provider.
 
@@ -82,14 +93,14 @@ package fib
 var cache = make(map[uint64]uint64)
 
 func Fib(n uint64) uint64 {
-	if n < 2 {
-		return n
-	}
+  if n < 2 {
+    return n
+  }
 
-	if _, ok := cache[n]; !ok {
-		cache[n] = Fib(n-1) + Fib(n-2)
-	}
-	return cache[n]
+  if _, ok := cache[n]; !ok {
+    cache[n] = Fib(n-1) + Fib(n-2)
+  }
+  return cache[n]
 }
 ```
 
@@ -97,9 +108,9 @@ The final requirement to register the function is to update the “internal/prov
 
 ```go
 func (p *MathProvider) Functions(ctx context.Context) []func() function.Function {
-	return []func() function.Function{
-		NewFibFunction,
-	}
+  return []func() function.Function{
+    NewFibFunction,
+  }
 }
 ```
 
@@ -151,7 +162,7 @@ And the results:
 
 INSERT IMAGE
 
-## Resources
+### Resources
 
 To contrast the behavior between functions and resources, I also implemented a resource called “math_fib” that uses the same “fib” pacakge. The main difference is that the resource is written to state and won’t update unless there is a change that requires it to be replaced. A function does not get [directly] written to state (only if it is the input to some other resource that is written to state).
 
@@ -163,9 +174,9 @@ A data structure must be created that includes the inputs and outputs of the res
 
 ```go
 type FibResourceModel struct {
-	ID     types.String `tfsdk:"id"`
-	Number types.Int64  `tfsdk:"number"`
-	Result types.Int64  `tfsdk:"result"`
+  ID     types.String `tfsdk:"id"`
+  Number types.Int64  `tfsdk:"number"`
+  Result types.Int64  `tfsdk:"result"`
 }
 ```
 
@@ -173,7 +184,7 @@ The Metadata method to name the resource:
 
 ```go
 func (r *FibResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_fib"
+  resp.TypeName = req.ProviderTypeName + "_fib"
 }
 ```
 
@@ -181,34 +192,34 @@ A detailed schema is created with the Schema method:
 
 ```go
 func (r *FibResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		// This description is used by the documentation generator and the language server.
-		MarkdownDescription: "The resource `math_fib` generates the fibonacci number from a given number.",
+  resp.Schema = schema.Schema{
+    // This description is used by the documentation generator and the language server.
+    MarkdownDescription: "The resource `math_fib` generates the fibonacci number from a given number.",
 
-		Attributes: map[string]schema.Attribute{
-			"number": schema.Int64Attribute{
-				MarkdownDescription: "The number to calculate the fibonacci sequence",
-				Required:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.RequiresReplace(),
-				},
-			},
-			"result": schema.Int64Attribute{
-				MarkdownDescription: "The result of the fibonacci number calculation.",
-				Computed:            true,
-				PlanModifiers: []planmodifier.Int64{
-					int64planmodifier.UseStateForUnknown(),
-				},
-			},
-			"id": schema.StringAttribute{
-				Computed:            true,
-				MarkdownDescription: "The string representation of the fibonacci number result.",
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-		},
-	}
+    Attributes: map[string]schema.Attribute{
+      "number": schema.Int64Attribute{
+        MarkdownDescription: "The number to calculate the fibonacci sequence",
+        Required:            true,
+        PlanModifiers: []planmodifier.Int64{
+          int64planmodifier.RequiresReplace(),
+        },
+      },
+      "result": schema.Int64Attribute{
+        MarkdownDescription: "The result of the fibonacci number calculation.",
+        Computed:            true,
+        PlanModifiers: []planmodifier.Int64{
+          int64planmodifier.UseStateForUnknown(),
+        },
+      },
+      "id": schema.StringAttribute{
+        Computed:            true,
+        MarkdownDescription: "The string representation of the fibonacci number result.",
+        PlanModifiers: []planmodifier.String{
+          stringplanmodifier.UseStateForUnknown(),
+        },
+      },
+    },
+  }
 }
 ```
 
@@ -216,28 +227,28 @@ The Create method does the hard work by getting the plan data, performing any ne
 
 ```go
 func (r *FibResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var data FibResourceModel
+  var data FibResourceModel
 
-	// Read Terraform plan data into the model
-	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+  // Read Terraform plan data into the model
+  resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
 
-	if resp.Diagnostics.HasError() {
-		return
-	}
+  if resp.Diagnostics.HasError() {
+    return
+  }
 
-	result := int64(fib.Fib(uint64(data.Number.ValueInt64())))
+  result := int64(fib.Fib(uint64(data.Number.ValueInt64())))
 
-	// For the purposes of this example code, hardcoding a response value to
-	// save into the Terraform state.
-	data.ID = types.StringValue(strconv.FormatInt(result, 10))
-	data.Result = types.Int64Value(result)
+  // For the purposes of this example code, hardcoding a response value to
+  // save into the Terraform state.
+  data.ID = types.StringValue(strconv.FormatInt(result, 10))
+  data.Result = types.Int64Value(result)
 
-	// Write logs using the tflog package
-	// Documentation: https://terraform.io/plugin/log
-	tflog.Info(ctx, "created a resource")
+  // Write logs using the tflog package
+  // Documentation: https://terraform.io/plugin/log
+  tflog.Info(ctx, "created a resource")
 
-	// Save data into Terraform state
-	resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
+  // Save data into Terraform state
+  resp.Diagnostics.Append(resp.State.Set(ctx, data)...)
 }
 ```
 
@@ -247,9 +258,9 @@ Back in the “internal/provider/provider.go” file, I added the resource to th
 
 ```go
 func (p *MathProvider) Resources(ctx context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
-		NewFibResource,
-	}
+  return []func() resource.Resource{
+    NewFibResource,
+  }
 }
 ```
 
@@ -296,6 +307,6 @@ terraform apply -auto-approve
 
 INSERT IMAGE
 
-## Conclusion
+### Conclusion
 
 Functions were not a huge hurdle to overcome. If you have any ideas about functions that you would like to see, please let me know. I am looking for a few ideas to add to my “math” provider.
