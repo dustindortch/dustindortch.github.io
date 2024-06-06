@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <header>
+      <h1>{{ title }}</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="{{ url_for('language') }}">Language</a></li>
+        <li><a href="{{ url_for('microsoft') }}">Microsoft</a></li>
+        <li><a href="{{ url_for('concepts') }}">Concepts</a></li>
+        <li><a href="{{ url_for('business-ideas') }}">Business Ideas</a></li>
+      </ul>
+    </nav>
+    <main>
+      {{ content }}
+    </main>
+    <footer>
+      <p>&copy; 2024 Dustin Dortch</p>
+  </body>

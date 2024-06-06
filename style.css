@@ -1,7 +1,12 @@
 body {
+  background-color: #666;
   margin: 0;
   padding: 0;
   text-align: center;
+}
+
+header, nav, main, footer {
+  width: calc(100% - 2em);
 }
 
 h1 {
