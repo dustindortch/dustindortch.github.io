@@ -1,9 +1,9 @@
 ---
+title: Dustin Dortch
 ---
 
-Welcome to my homepage
-
-{% assign date = '2024-06-06T13:12:00-05:00' %}
-
-- Original date - {{ date }}
-- - With timeago filter - {{ date | timeago }}
+{% for post in site.posts %}
+  <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+  <p>{{ post.excerpt }}</p>
+  <p><a href="{{ post.url }}">Read more</a></p>
+{% endfor %}

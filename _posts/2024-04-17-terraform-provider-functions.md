@@ -160,7 +160,7 @@ terraform plan
 
 And the results:
 
-INSERT IMAGE
+![terraform plan](/assets/img/2024-04-17-terraform-provider-functions-terraform-plan.png)
 
 ### Resources
 
@@ -305,7 +305,7 @@ terraform init
 terraform apply -auto-approve
 ```
 
-INSERT IMAGE
+![terraform apply](/assets/img/2024-04-17-terraform-provider-functions-terraform-apply.png)
 
 ### Conclusion
 
