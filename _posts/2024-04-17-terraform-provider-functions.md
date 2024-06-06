@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Terraform Provider Functions
-permalink: /2024/04/17/terraform-provider-functions/
+permalink: /2024/04/17/terraform-provider-functions
 date: 2024-04-17 17:22:00 -0500
 categories:
   - DevOps
