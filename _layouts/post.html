@@ -1,8 +1,28 @@
----
-layout:default
----
-<div class="meta">
-  <span class="date">Posted on {{ page.date }}</span>
-</div>
-
-{{ content }}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <header>
+      <h1>{{ page.title }}</h1>
+    </header>
+    <nav>
+      <ul>
+        <li><a href="#">Language</a></li>
+        <li><a href="#">Microsoft</a></li>
+        <li><a href="#">Concepts</a></li>
+        <li><a href="#">Business Ideas</a></li>
+      </ul>
+    </nav>
+    <main>
+      <div class="meta">
+        <span class="date">Posted on {{ page.date }}</span>
+      </div>
+      {{ content }}
+    </main>
+    <footer>
+      <p>&copy; 2024 Dustin Dortch</p>
+  </body>
